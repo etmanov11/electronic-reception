@@ -12,9 +12,6 @@ from appeals.models import Appeal
 from .forms import ReportFilterForm
 from .models import ExportHistory
 
-
-_ARIAL_PATH = os.path.join(os.environ.get('WINDIR', r'C:\Windows'), 'Fonts', 'arial.ttf')
-_ARIALBD_PATH = os.path.join(os.environ.get('WINDIR', r'C:\Windows'), 'Fonts', 'arialbd.ttf')
 _FONT_NAME = None
 
 
@@ -25,11 +22,23 @@ def _ensure_font():
     try:
         from reportlab.pdfbase import pdfmetrics
         from reportlab.pdfbase.ttfonts import TTFont
-        if os.path.exists(_ARIAL_PATH):
-            pdfmetrics.registerFont(TTFont('CyrFont', _ARIAL_PATH))
-            if os.path.exists(_ARIALBD_PATH):
-                pdfmetrics.registerFont(TTFont('CyrFont-Bold', _ARIALBD_PATH))
-            _FONT_NAME = 'CyrFont'
+        # Используем DejaVu шрифты (установлены в контейнере через start.sh)
+        dejavu_regular = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
+        dejavu_bold = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
+        if os.path.exists(dejavu_regular):
+            pdfmetrics.registerFont(TTFont('DejaVu', dejavu_regular))
+            if os.path.exists(dejavu_bold):
+                pdfmetrics.registerFont(TTFont('DejaVu-Bold', dejavu_bold))
+            _FONT_NAME = 'DejaVu'
+            return _FONT_NAME
+        # Fallback: Noto Sans
+        noto_regular = '/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf'
+        noto_bold = '/usr/share/fonts/truetype/noto/NotoSans-Bold.ttf'
+        if os.path.exists(noto_regular):
+            pdfmetrics.registerFont(TTFont('Noto', noto_regular))
+            if os.path.exists(noto_bold):
+                pdfmetrics.registerFont(TTFont('Noto-Bold', noto_bold))
+            _FONT_NAME = 'Noto'
             return _FONT_NAME
     except Exception:
         pass
