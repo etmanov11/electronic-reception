@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Аналитика и отчёты{% endblock %}
+{% block content %}
+<h1 class="h3 mb-4">Панель аналитики</h1>
+
+<form method="get" class="row g-3 mb-4 bg-light p-3 rounded">
+    <div class="col-md-3">
+        <label class="form-label small text-muted">С</label>
+        {{ form.date_from }}
+    </div>
+    <div class="col-md-3">
+        <label class="form-label small text-muted">По</label>
+        {{ form.date_to }}
+    </div>
+    <div class="col-md-2">
+        <label class="form-label small text-muted">Статус</label>
+        {{ form.status }}
+    </div>
+    <div class="col-md-2">
+        <label class="form-label small text-muted">Категория</label>
+        {{ form.category }}
+    </div>
+    <div class="col-md-2 d-flex align-items-end gap-2">
+        <button type="submit" class="btn btn-primary">Фильтр</button>
+        <a href="{% url 'reports:export_csv' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-success">📊 CSV</a>
+        <a href="{% url 'reports:export_pdf' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-outline-dark">📄 PDF</a>
+    </div>
+</form>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card card-stat p-3 text-center">
+            <h3>{{ stats.total }}</h3>
+            <small class="text-muted">Всего обращений</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-stat p-3 text-center" style="border-left-color: #198754;">
+            <h3>{{ stats.approved }}</h3>
+            <small class="text-muted">Удовлетворено</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-stat p-3 text-center" style="border-left-color: #dc3545;">
+            <h3>{{ stats.rejected }}</h3>
+            <small class="text-muted">Отказано</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-stat p-3 text-center" style="border-left-color: #6f42c1;">
+            <h3>{{ stats.avg_processing_days|floatformat:1 }}</h3>
+            <small class="text-muted">Ср. срок (дней)</small>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">Последние обращения</div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr><th>№</th><th>Тема</th><th>Статус</th><th>Дата</th></tr>
+            </thead>
+            <tbody>
+                {% for a in recent_appeals %}
+                <tr>
+                    <td>{{ a.reg_number }}</td>
+                    <td>{{ a.title|truncatechars:35 }}</td>
+                    <td><span class="badge badge-status-{{ a.status.code }}">{{ a.status.name }}</span></td>
+                    <td>{{ a.created_at|date:"d.m.Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="text-center text-muted">Нет данных</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

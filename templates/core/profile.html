@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Мой профиль{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">Профиль пользователя</div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}<div class="text-danger small">{{ field.errors|striptags }}</div>{% endif %}
+                    </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-success">Сохранить изменения</button>
+                </form>
+                <hr>
+                <a href="{% url 'core:change_password' %}" class="btn btn-outline-secondary btn-sm">Изменить пароль</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

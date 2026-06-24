@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Новое обращение{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h2 class="h4 mb-0">Регистрация обращения</h2>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" novalidate id="appeal-form">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">Тема обращения <span class="text-danger">*</span></label>
+                        {{ form.title }}
+                        {% if form.title.errors %}<div class="text-danger small">{{ form.title.errors|striptags }}</div>{% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.category.id_for_label }}" class="form-label">Категория <span class="text-danger">*</span></label>
+                        {{ form.category }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">Подробное описание <span class="text-danger">*</span></label>
+                        {{ form.description }}
+                        {% if form.description.errors %}<div class="text-danger small">{{ form.description.errors|striptags }}</div>{% endif %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.contact_email.id_for_label }}" class="form-label">Email <span class="text-danger">*</span></label>
+                            {{ form.contact_email }}
+                            {% if form.contact_email.errors %}<div class="text-danger small">{{ form.contact_email.errors|striptags }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.contact_phone.id_for_label }}" class="form-label">Телефон</label>
+                            {{ form.contact_phone }}
+                            {% if form.contact_phone.errors %}<div class="text-danger small">{{ form.contact_phone.errors|striptags }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <small>Нажимая кнопку, вы подтверждаете согласие на обработку персональных данных в соответствии с ФЗ-152.</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary px-4">Зарегистрировать</button>
+                    <a href="{% url 'appeals:list' %}" class="btn btn-outline-secondary">Отмена</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

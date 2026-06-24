@@ -1,0 +1,32 @@
+digraph model_graph {
+    fontname = "Helvetica";
+    fontsize = 10;
+    node [fontname = "Helvetica", fontsize = 10, shape = "record", style = "filled", fillcolor = "white"];
+    edge [fontname = "Helvetica", fontsize = 9];
+    
+    // CustomUser
+    CustomUser [label = "{CustomUser|+ id: BigAutoField\l+ username: CharField\l+ email: EmailField\l+ first_name: CharField\l+ last_name: CharField\l+ department: CharField\l+ position: CharField\l+ role: CharField\l+ is_active: BooleanField\l}", fillcolor = "#dae8fc"];
+    
+    // Appeal
+    Appeal [label = "{Appeal|+ id: BigAutoField\l+ author: ForeignKey(CustomUser)\l+ executor: ForeignKey(CustomUser)\l+ status: ForeignKey(Status)\l+ category: CharField\l+ description: TextField\l+ contact_email: EmailField\l+ contact_phone: CharField\l+ deadline: DateField\l+ metadata: JSONField\l+ reg_number: CharField\l}", fillcolor = "#d5e8d4"];
+    
+    // Status
+    Status [label = "{Status|+ id: BigAutoField\l+ code: CharField\l+ color: CharField\l+ order: PositiveSmallIntegerField\l}", fillcolor = "#f8cecc"];
+    
+    // Document
+    Document [label = "{Document|+ id: BigAutoField\l+ appeal: ForeignKey(Appeal)\l+ description: CharField\l+ file: FileField\l}", fillcolor = "#fff2cc"];
+    
+    // AuditLog
+    AuditLog [label = "{AuditLog|+ id: BigAutoField\l+ user: ForeignKey(CustomUser)\l+ action: CharField\l+ target_content_type: ForeignKey(ContentType)\l+ target_object_id: PositiveIntegerField\l+ ip_address: GenericIPAddressField\l+ timestamp: DateTimeField\l}", fillcolor = "#e1d5e7"];
+    
+    // ExportHistory
+    ExportHistory [label = "{ExportHistory|+ id: BigAutoField\l+ user: ForeignKey(CustomUser)\l+ created_at: DateTimeField\l+ filters_applied: JSONField\l+ records_count: PositiveIntegerField\l+ report_type: CharField\l}", fillcolor = "#ffe6cc"];
+    
+    // Связи
+    CustomUser -> Appeal [label = "author (1:N)", arrowhead = "open", color = "#6c8ebf"];
+    CustomUser -> Appeal [label = "executor (1:N)", arrowhead = "open", color = "#6c8ebf"];
+    Status -> Appeal [label = "status (1:N)", arrowhead = "open", color = "#b85450"];
+    Appeal -> Document [label = "documents (1:N)", arrowhead = "open", color = "#82b366"];
+    CustomUser -> AuditLog [label = "audit (1:N)", arrowhead = "open", color = "#6c8ebf"];
+    CustomUser -> ExportHistory [label = "exports (1:N)", arrowhead = "open", color = "#6c8ebf"];
+}

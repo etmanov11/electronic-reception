@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Реестр обращений{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <h1 class="h3 mb-0">Реестр обращений</h1>
+    <a href="{% url 'appeals:create' %}" class="btn btn-success">+ Подать обращение</a>
+</div>
+
+<form method="get" class="row g-3 mb-4 bg-light p-3 rounded" aria-label="Фильтрация обращений">
+    <div class="col-md-4">
+        <input type="search" name="q" class="form-control" placeholder="Поиск по номеру или теме" value="{{ request.GET.q|default:'' }}">
+    </div>
+    <div class="col-md-3">
+        <select name="status" class="form-select">
+            <option value="">Все статусы</option>
+            {% for status in statuses %}
+            <option value="{{ status.code }}" {% if request.GET.status == status.code %}selected{% endif %}>{{ status.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <button type="submit" class="btn btn-primary w-100">Применить</button>
+    </div>
+</form>
+
+{% with page_query=request.GET.urlencode %}
+{% if page_obj %}
+<div class="table-responsive d-none d-md-block">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th scope="col">№</th>
+                <th scope="col">Тема</th>
+                <th scope="col">Категория</th>
+                <th scope="col">Статус</th>
+                <th scope="col">Дата</th>
+                <th scope="col">Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for appeal in page_obj %}
+            <tr>
+                <td><a href="{% url 'appeals:detail' appeal.pk %}" class="text-decoration-none fw-bold">{{ appeal.reg_number }}</a></td>
+                <td>{{ appeal.title|truncatechars:40 }}</td>
+                <td>{{ appeal.get_category_display }}</td>
+                <td><span class="badge badge-status-{{ appeal.status.code }}">{{ appeal.status.name }}</span></td>
+                <td>{{ appeal.created_at|date:"d.m.Y" }}</td>
+                <td><a href="{% url 'appeals:detail' appeal.pk %}" class="btn btn-sm btn-outline-primary">Подробнее</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="d-md-none">
+    {% for appeal in page_obj %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title"><a href="{% url 'appeals:detail' appeal.pk %}" class="text-decoration-none">{{ appeal.reg_number }}</a></h5>
+            <p class="card-text mb-1">{{ appeal.title }}</p>
+            <span class="badge badge-status-{{ appeal.status.code }}">{{ appeal.status.name }}</span>
+            <small class="text-muted d-block mt-2">{{ appeal.created_at|date:"d.m.Y" }}</small>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<nav aria-label="Навигация по страницам">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q|urlencode }}&{% endif %}{% if request.GET.status %}status={{ request.GET.status|urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}">Предыдущая</a></li>
+        {% endif %}
+        <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q|urlencode }}&{% endif %}{% if request.GET.status %}status={{ request.GET.status|urlencode }}&{% endif %}page={{ page_obj.next_page_number }}">Следующая</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% else %}
+<div class="alert alert-info text-center py-5">
+    <h4>Обращения не найдены</h4>
+    <p class="mb-0">Попробуйте изменить параметры поиска или подайте новое обращение.</p>
+</div>
+{% endif %}
+{% endwith %}
+{% endblock %}
