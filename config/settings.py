@@ -26,6 +26,20 @@ RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
+# Railway автоматически предоставляет домен через RAILWAY_STATIC_URL или RAILWAY_PUBLIC_DOMAIN
+RAILWAY_STATIC_URL = os.environ.get('RAILWAY_STATIC_URL')
+RAILWAY_PUBLIC_DOMAIN = os.environ.get('RAILWAY_PUBLIC_DOMAIN')
+if RAILWAY_STATIC_URL:
+    from urllib.parse import urlparse
+    parsed = urlparse(RAILWAY_STATIC_URL)
+    if parsed.netloc:
+        ALLOWED_HOSTS.append(parsed.netloc)
+if RAILWAY_PUBLIC_DOMAIN:
+    ALLOWED_HOSTS.append(RAILWAY_PUBLIC_DOMAIN)
+
+# Также добавляем все .up.railway.app поддомены
+ALLOWED_HOSTS.append('.up.railway.app')
+
 # 5. Установленные приложения
 INSTALLED_APPS = [
     'django.contrib.admin',
