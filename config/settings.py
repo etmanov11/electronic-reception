@@ -12,12 +12,19 @@ LOGS_DIR.mkdir(exist_ok=True)
 
 # 3. Инициализация переменных окружения
 env = Env()
-env.read_env(os.path.join(BASE_DIR, '.env'), encoding='utf-8')
+env_file = os.path.join(BASE_DIR, '.env')
+if os.path.exists(env_file):
+    env.read_env(env_file, encoding='utf-8')
 
 # 4. Безопасность и режим запуска
 SECRET_KEY = env('SECRET_KEY', default='django-insecure-fallback-key-for-dev-only')
 DEBUG = env.bool('DEBUG', default=True)
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
+
+# Render.com автоматически предоставляет этот хост
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # 5. Установленные приложения
 INSTALLED_APPS = [
@@ -127,13 +134,21 @@ EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.console.
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='noreply@localhost')
 
 # 14. Celery
-CELERY_BROKER_URL = env('REDIS_URL', default='redis://127.0.0.1:6379/0')
+# На Render free tier нет Redis — используем eager mode (синхронно) или БД как брокер
+REDIS_URL = env('REDIS_URL', default=None)
+if REDIS_URL:
+    CELERY_BROKER_URL = REDIS_URL
+    CELERY_TASK_ALWAYS_EAGER = False
+else:
+    # Fallback: синхронное выполнение задач без Redis
+    CELERY_TASK_ALWAYS_EAGER = True
+    CELERY_BROKER_URL = 'memory://'
+
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
-CELERY_TASK_ALWAYS_EAGER = DEBUG
 
 # 15. Журналирование
 LOGGING = {
